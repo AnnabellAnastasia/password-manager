@@ -1,3 +1,4 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 import random
@@ -29,17 +30,31 @@ def password_generator():
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def save():
-    if len(website_entry.get()) == 0 or len(password_entry.get()) == 0:
+    website = website_entry.get()
+    email = username_entry.get()
+    password = password_entry.get()
+    new_data = {
+        website_entry.get(): {
+            "email": email,
+            "password": password
+        }}
+    if len(website) == 0 or len(password) == 0:
         messagebox.showinfo(title='Oops', message='Please dont leave any fields empty!')
     else:
-        is_ok = messagebox.askokcancel(title=website_entry.get(),
-                                       message=f"There are details you have entered: \nEmail: {username_entry.get()} \nPassword: {password_entry.get()} \nIs it ok to save?")
-        if is_ok:
-            with open("data.txt", 'a') as f:
-                f.write(f"{website_entry.get()} | {username_entry.get()} | {password_entry.get()} \n")
-                website_entry.delete(0, 'end')
-                username_entry.delete(0, 'end')
-                password_entry.delete(0, 'end')
+        try:
+            with open("data.json", 'r') as data_file:
+                data = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                json.dump(new_data, data_file, indent=4)
+        else:
+            data.update(new_data)
+            with open('data.json', 'w') as data_file:
+                json.dump(data, data_file, indent=4)
+        finally:
+            website_entry.delete(0, 'end')
+            # username_entry.delete(0, 'end')
+            password_entry.delete(0, 'end')
 
 
 # ---------------------------- UI SETUP ------------------------------- #
